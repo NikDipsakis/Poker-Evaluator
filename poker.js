@@ -18,64 +18,63 @@ class Card {
     };
 
     introFullCard() {
+        let number
+        let suit
         if (this.name === 'J') {
-            this.name = 'Jack';
+            number = 'Jack';
         } else if (this.name === 'Q') {
-            this.name = 'Queen';
+            number = 'Queen';
         } else if (this.name === 'K') {
-            this.name = 'King';
+            number = 'King';
         } else if (this.name === 'A') {
-            this.name = 'Ace';
+            number = 'Ace';
         };
 
         if (this.suit === '♥️') {
-            return {
-                name: this.name,
-                suit: 'Hearts'
-            };
-        } else if (this.suit === '♣️') {
-            return {
-                name: this.name,
-                suit: 'Spades'
-            };
-        } else if (this.suit === '♠️') {
-            return {
-                name: this.name,
-                suit: 'Clubs'
-            };
-        } else if (this.suit === '♦️') {
-            return {
-                name: this.name,
-                suit: 'Diamonds'
-            };
+            suit = 'Hearts'
 
+        } else if (this.suit === '♣️') {
+            suit = 'Spades'
+
+        } else if (this.suit === '♠️') {
+            suit = 'Clubs'
+
+        } else if (this.suit === '♦️') {
+            suit = 'Diamonds'
         };
 
+        return `${number} of ${suit}`
     };
 }
 
 class Deck {
     constructor(array, suits) {
-        this.array = array
-        this.suits = suits
+        this.cards
+
         let newDeck = []
 
-        for (let smallerArr of this.array) {
-            for (let card of smallerArr) {
-                for (let suit of this.suits) {
-                    newDeck.push({
-                        suit: suit,
-                        card: card
-                    })
-
-                }
+        for (let number of array) {
+            for (let suit of suits) {
+                newDeck.push(new Card(number, suit))
             }
         }
-        let shuffledDeck = newDeck.sort(function () {
+        this.cards = newDeck
+        this.deckOriginalSize = newDeck.length
+    };
+
+    shuffleDeck() {
+        let shuffledDeck = this.cards.sort(function () {
             return Math.random() - 0.5;
         })
-        return shuffledDeck
-    };
+        this.cards = shuffledDeck
+    }
+    remainingCards() {
+        return this.cards.length
+    }
+
+    deckDraw() {
+        return this.cards.shift()
+    }
 };
 
 class Player {
@@ -84,69 +83,140 @@ class Player {
         this.hand = hand
     }
 }
-const allCards = [[2, 3, 4, 5, 6, 7, 8, 9, 10], ['J', 'Q', 'K', 'A']];
+
+function areTwoCardsTheSame(card1, card2) {
+    if (card1.name == card2.name && card1.suit == card2.suit) {
+        return true
+    }
+    return false
+}
+
+const allCards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
 const cardSuits = ['♥️', '♣️', '♠️', '♦️'];
 const deck = new Deck(allCards, cardSuits)
+
+deck.shuffleDeck()
+
+// console.log(deck.cards.length)
+// for(let i=0;i<deck.deckOriginalSize;i++){
+//     console.log(i+1,deck.deckDraw())
+// }
+// console.log(deck.cards)
+
+
+
+// /////////  NIKOS ///////////////
 //console.log(deck)
-const playerNick = new Player('Nick', [deckDraw(deck), deckDraw(deck)])
-const playerKostas = new Player('Kostas', [deckDraw(deck), deckDraw(deck)])
-//const playerMitsos = new Player ('Mitsos' , [deckDraw(deck),deckDraw(deck)])
+const playerNick = new Player('Nick', [deck.deckDraw(deck), deck.deckDraw(deck)])
+const playerKostas = new Player('Kostas', [deck.deckDraw(deck), deck.deckDraw(deck)])
+//const playerMitsos = new Player ('Mitsos' , [deck.deckDraw(deck),deck.deckDraw(deck)])
 const pokerPlayers = [playerNick, playerKostas]
-const pokerPot = [deckDraw(deck), deckDraw(deck), deckDraw(deck), deckDraw(deck), deckDraw(deck)]
+const pokerPot = [deck.deckDraw(deck), deck.deckDraw(deck), deck.deckDraw(deck), deck.deckDraw(deck), deck.deckDraw(deck)]
+
+// console.log(pokerPlayers,pokerPot,deck.cards)
+
+// function addPlayer(player) {
+//     pokerPlayers.push(player)
+// }
+// //addPlayer(playerMitsos)
 
 
-function addPlayer(player) {
-    pokerPlayers.push(player)
-}
-//addPlayer(playerMitsos)
 
-function deckDraw(deck) {
-    return deck.pop()
-}
+// //deckDraw(deck)
+// function remainingCards(deck) {
+//     let remainCards = 0
+//     for (i = 1; i <= deck.length; i++) {
+//         remainCards += 1
+//     }
+//     console.log(`${remainCards} Cards remaining`)
+// }
+// //remainingCards(deck)
 
-//deckDraw(deck)
-function remainingCards(deck) {
-    let remainCards = 0
-    for (i = 1; i <= deck.length; i++) {
-        remainCards += 1
-    }
-    console.log(`${remainCards} Cards remaining`)
-}
-remainingCards(deck)
 
-function oneOfAKind(players, pot) {
-    for (player of players) {
-        for (i = 0; i < players.length; i++) {
-            console.log(player.hand[i].card)
-            for (let card of pot) {
-                if (player.hand[i].card === card.card || player.hand[0].card === player.hand[1].card) {
-                    console.log(`${player.name} got a pair`)
-                   
+function oneOfAKind(player, pot) {
+
+    console.log("player => ", player)
+    console.log("pot => ", pot)
+    const playingCards = [...player.hand, ...pot]
+
+    for (let card1 of playingCards) {
+        for (let card2 of playingCards) {
+            if (!areTwoCardsTheSame(card1, card2)) {
+                if (card1.name == card2.name) {
+                    return [card1, card2]
                 }
-            
             }
         }
-    }return true
+    }
+
+    return false
 }
 
-oneOfAKind(pokerPlayers, pokerPot)
-console.log(pokerPlayers[0])
-console.log(pokerPlayers[1])
-console.log(...pokerPot)
-//console.log(deck)
+function isCardUsed(card, usedCards) {
+    for (let useCard of usedCards) {
+        if (areTwoCardsTheSame(useCard, card)) {
+            return true
+        }
+    }
+    return false
+}
 
-//console.log(deck.remainingCards()) /// output -> 43
-/// μετα θελω να ελεγχει αν καποιος παιχτης εχει ζευγαρι
-//const card = new Card(allCards[0][1], cardSuits[1]);
-//Answer: const deck = new Deck()
+function twoOfAkind(player, pot) {
+    let combo = []
+    console.log("player => ", player)
+    console.log("pot => ", pot)
 
-//Answer: deck.shuffle()
-//console.log(deck.deckCreate())
-//console.log(deck.deckDraw())
+    const playingCards = [...player.hand, ...pot]
+
+    let useCards = []
+    for (let card1 of playingCards) {
+        if (!isCardUsed(card1, useCards)) {
+            for (let card2 of playingCards) {
+                if (!isCardUsed(card2, useCards)) {
+                    if (!areTwoCardsTheSame(card1, card2)) {
+                        if (card1.name == card2.name) {
+                            useCards.push(card1)
+                            useCards.push(card2)
+                            combo.push([card1, card2])
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    if (combo.length == 2) {
+
+        return combo
+    }
+    return false
+}
+
+//console.log(oneOfAKind(playerKostas,pokerPot))
+console.log(twoOfAkind(playerKostas, pokerPot))
+// oneOfAKind(pokerPlayers, pokerPot)
+// console.log(pokerPlayers[0])
+// console.log(pokerPlayers[1])
+// console.log(...pokerPot)
+// //console.log(deck)
+
+// //console.log(deck.remainingCards()) /// output -> 43
+// /// μετα θελω να ελεγχει αν καποιος παιχτης εχει ζευγαρι
+// //const card = new Card(allCards[0][1], cardSuits[1]);
+// //Answer: const deck = new Deck()
+
+// //Answer: deck.shuffle()
+// //console.log(deck.deckCreate())
+// //console.log(deck.deckDraw())
 
 
 
 
-
+// for (let i = 0; i < deck.length; i++) {
+//     console.log(i)
+//     console.log(deck.pop())
+// }
 
 
