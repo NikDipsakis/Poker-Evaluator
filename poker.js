@@ -112,7 +112,7 @@ function remainingCards(deck) {
     }
     console.log(`${remainCards} Cards remaining`)
 }
-//remainingCards(deck)
+remainingCards(deck)
 
 function oneOfAKind(players, pot) {
     for (player of players) {
